@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { Link } from "expo-router";
 import Map from "@/components/Map";
+import * as Location from "expo-location";
 import {
   Text,
   View,
@@ -15,6 +16,10 @@ import { images } from "@/constants";
 import { icons } from "@/constants";
 import GoogleTextInput from "@/components/GoogleTextInput";
 import MapView, { PROVIDER_DEFAULT } from "react-native-maps";
+import GradientText from "@/components/GradientText";
+import { useLocationStore } from "@/store";
+import { useEffect, useState } from "react";
+import { Effect } from "babel-plugin-react-compiler";
 
 const recentRides = [
   {
@@ -124,13 +129,51 @@ const recentRides = [
 ];
 
 export default function Page() {
-  const { user } = useUser();
+  const { setUserLocation, setDestinationLocation } = useLocationStore();
 
   const loading = true;
 
   const handleSignOut = () => {};
 
+  const [hasPermissions, setHasPermissions] = useState(false);
+
   const handleDestinationPress = () => {};
+
+  useEffect(() => {
+    const requestLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setHasPermissions(false);
+        console.warn("Location permission denied");
+        // Set default San Francisco coordinates if permission is denied
+        setUserLocation({
+          latitude: 37.78825,
+          longitude: -122.4324,
+          address: "San Francisco, CA",
+        });
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+
+      const address = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude, // Correct: use latitude
+        longitude: location.coords.longitude, // Correct: use longitude
+      });
+
+      const userAddress = address[0]
+        ? `${address[0].name || ""}, ${address[0].city || address[0].region || "Unknown"}`
+        : "Unknown Location";
+
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        address: userAddress,
+      });
+    };
+
+    requestLocation();
+  }, [setUserLocation]);
 
   return (
     <SafeAreaView className="bg-general-500">
@@ -162,12 +205,18 @@ export default function Page() {
         ListHeaderComponent={() => (
           <>
             <View className="flex flex-row items-center justify-between my-5">
-              <Text className="text-2xl capitalize font-">Veloce</Text>
+              <GradientText
+                text="Veloce"
+                style={{
+                  fontSize: 30,
+                }}
+                className="font-OrbitianBold text-[#858585]"
+              />
               <TouchableOpacity
                 onPress={handleSignOut}
                 className="justify-center items-center w-10 h-10 rounded-full bg-white"
               >
-                <Image source={icons.out} className="w-4 h-4" />
+                <Image source={icons.out} className="w-5 h-5" />
               </TouchableOpacity>
             </View>
             <GoogleTextInput
@@ -180,10 +229,7 @@ export default function Page() {
                 Your Current Location
               </Text>
               <View className="w-full h-[300px] rounded-2xl">
-                <MapView
-                  provider={PROVIDER_DEFAULT}
-                  style={{ flex: 1, borderRadius: 50 }}
-                />
+                <Map />
               </View>
             </>
             <Text className="text-xl font-JakartaBold mt-5 mb-3">
