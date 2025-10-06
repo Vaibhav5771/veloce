@@ -1,4 +1,4 @@
-import "dotenv/config"; // load .env automatically
+import "dotenv/config";
 
 export default {
   expo: {
@@ -48,9 +48,9 @@ export default {
       eas: {
         projectId: "1a30a46e-ac2c-4452-8ec5-9e5aec0e962e",
       },
-      // ✅ Add your Clerk publishable key here
       EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY:
         process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      EXPO_PUBLIC_GOOGLE_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_API_KEY, // Fix: Match .env key
     },
   },
 };
