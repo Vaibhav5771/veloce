@@ -76,12 +76,14 @@ const Map = () => {
     if (Array.isArray(drivers)) {
       if (!userLatitude || !userLongitude) return;
 
+      // @ts-ignore
       const newMarkers = generateMarkersFromData({
         data: drivers,
         userLatitude,
         userLongitude,
       });
 
+      // @ts-ignore
       setMarkers(newMarkers);
     }
   }, [drivers, userLatitude, userLongitude]);
