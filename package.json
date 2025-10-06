@@ -49,6 +49,7 @@
     "react-native-maps": "1.20.1",
     "react-native-maps-directions": "^1.9.0",
     "react-native-model": "^1.0.5",
+    "react-native-razorpay": "^2.3.0",
     "react-native-reanimated": "~4.1.0",
     "react-native-safe-area-context": "^5.6.1",
     "react-native-screens": "~4.16.0",
