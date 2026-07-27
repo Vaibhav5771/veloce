@@ -9,23 +9,13 @@ const TabIcon = ({
   source: ImageSourcePropType;
   focused: boolean;
 }) => (
-  <View
-    className={`flex flex-row justify-center items-center rounded-full ${
-      focused ? "bg-black" : ""
-    }`}
-  >
-    <View
-      className={`rounded-full w-12 h-12 items-center justify-center ${
-        focused ? "bg-general-400" : ""
-      }`}
-    >
-      <Image
-        source={source}
-        style={{ tintColor: "white" }}
-        resizeMode="contain"
-        className="w-7 h-7"
-      />
-    </View>
+  <View className="items-center justify-center mt-4">
+    <Image
+      source={source}
+      style={{ tintColor: "white", opacity: focused ? 1 : 0.45 }}
+      resizeMode="contain"
+      className="w-7 h-7"
+    />
   </View>
 );
 
@@ -37,17 +27,11 @@ const Layout = () => (
       tabBarInactiveTintColor: "white",
       tabBarShowLabel: false,
       tabBarStyle: {
-        backgroundColor: "#333333",
-        borderRadius: 50,
-        paddingBottom: 30,
-        overflow: "hidden",
-        marginHorizontal: 20,
-        marginBottom: 20,
-        height: 75,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexDirection: "row",
+        backgroundColor: "#000000",
+        borderTopWidth: 0.5,
+        borderTopColor: "#1F1F1F",
+        height: 85,
+        paddingTop: 10,
         position: "absolute",
       },
     }}

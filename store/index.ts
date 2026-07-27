@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { DriverStore, LocationStore, MarkerData } from "@/types/type";
-import { set } from "zod";
 
 export const useLocationStore = create<LocationStore>((set) => ({
   userAddress: null,

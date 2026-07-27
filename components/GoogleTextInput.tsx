@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, TextInput, Image, TouchableOpacity, Text } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { icons } from "@/constants";
 import { GoogleInputProps } from "@/types/type";
@@ -15,6 +16,7 @@ interface PlaceSuggestion {
 const GoogleTextInput = ({
   icon,
   initialLocation,
+  placeholder,
   containerStyle,
   textInputBackgroundColor,
   handlePress,
@@ -59,7 +61,17 @@ const GoogleTextInput = ({
   const handleChange = (text: string) => {
     setQuery(text);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!text.trim()) {
+      setSuggestions([]);
+      return;
+    }
     debounceRef.current = setTimeout(() => fetchSuggestions(text), 300);
+  };
+
+  const handleClear = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setQuery("");
+    setSuggestions([]);
   };
 
   // Handle selecting a suggestion
@@ -115,56 +127,14 @@ const GoogleTextInput = ({
     }
   };
 
-  // Handle current location
-  const handleCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission denied");
-        return;
-      }
-
-      const loc = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = loc.coords;
-
-      const [address] = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      const formattedAddress = `${address.name ?? ""} ${address.street ?? ""} ${address.city ?? ""}`;
-
-      const location = {
-        latitude,
-        longitude,
-        address: formattedAddress,
-      };
-
-      if (handlePress) {
-        handlePress(location);
-      } else {
-        // Navigate to RideLayout
-        router.push({
-          pathname: "/(root)/find-ride",
-          params: {
-            latitude: latitude.toString(),
-            longitude: longitude.toString(),
-            address: formattedAddress,
-          },
-        });
-      }
-
-      setQuery(formattedAddress);
-      setSuggestions([]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
-    <View className={`relative z-50 ${containerStyle}`}>
+    <View
+      className={`relative ${containerStyle}`}
+      style={{ zIndex: 50, elevation: 12 }}
+    >
       {/* Input Field */}
       <View
-        className="flex flex-row items-center rounded-xl"
+        className="flex flex-row items-center rounded-full"
         style={{
           backgroundColor: textInputBackgroundColor || "white",
           height: 50,
@@ -187,19 +157,22 @@ const GoogleTextInput = ({
         <TextInput
           value={query}
           onChangeText={handleChange}
-          placeholder={initialLocation ?? "Where do you want to go?"}
-          placeholderTextColor="gray"
+          placeholder={placeholder ?? initialLocation ?? "Where do you want to go?"}
+          placeholderTextColor="#000000"
           className="flex-1 px-4 py-3"
-          style={{ fontSize: 16, fontWeight: "600" }}
+          style={{ fontSize: 16, fontWeight: "600", color: "#000000" }}
         />
 
-        {/* Current Location */}
-        <TouchableOpacity
-          onPress={handleCurrentLocation}
-          className="justify-center items-center w-10 h-10"
-        >
-          <Image source={icons.map} className="w-6 h-6" resizeMode="contain" />
-        </TouchableOpacity>
+        {/* Clear (✕) button — only when there is text */}
+        {query.length > 0 && (
+          <TouchableOpacity
+            onPress={handleClear}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            className="justify-center items-center"
+          >
+            <Ionicons name="close-circle" size={20} color="#6B7280" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Suggestions Dropdown */}
@@ -210,15 +183,18 @@ const GoogleTextInput = ({
             top: 55,
             left: 0,
             right: 0,
-            backgroundColor: textInputBackgroundColor || "white",
-            borderRadius: 10,
-            shadowColor: "#d4d4d4",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-            maxHeight: 200,
+            backgroundColor: "#171717",
+            borderRadius: 12,
+            borderWidth: 0.5,
+            borderColor: "#2A2A2A",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.4,
+            shadowRadius: 6,
+            elevation: 24,
+            maxHeight: 220,
             zIndex: 9999,
+            overflow: "hidden",
           }}
         >
           {suggestions.map((item) => (
@@ -226,12 +202,31 @@ const GoogleTextInput = ({
               key={item.place_id}
               onPress={() => handlePlaceSelect(item)}
               style={{
-                padding: 12,
-                borderBottomWidth: 1,
-                borderBottomColor: "#e5e7eb",
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: 14,
+                paddingHorizontal: 16,
+                borderBottomWidth: 0.5,
+                borderBottomColor: "#2A2A2A",
               }}
             >
-              <Text style={{ fontSize: 16 }}>{item.description}</Text>
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 15,
+                  color: "#FFFFFF",
+                  fontWeight: "500",
+                }}
+                numberOfLines={2}
+              >
+                {item.description}
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={18}
+                color="#0286FF"
+                style={{ marginLeft: 10 }}
+              />
             </TouchableOpacity>
           ))}
         </View>

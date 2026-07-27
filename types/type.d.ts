@@ -55,8 +55,8 @@ declare interface Ride {
 
 declare interface ButtonProps extends TouchableOpacityProps {
   title: string;
-  bgVariant?: "primary" | "secondary" | "danger" | "outline" | "success";
-  textVariant?: "primary" | "default" | "secondary" | "danger" | "success";
+  bgVariant?: "primary" | "secondary" | "danger" | "outline" | "success" | "dark";
+  textVariant?: "primary" | "default" | "secondary" | "danger" | "success" | "light";
   IconLeft?: React.ComponentType<any>;
   IconRight?: React.ComponentType<any>;
   className?: string;
@@ -65,6 +65,7 @@ declare interface ButtonProps extends TouchableOpacityProps {
 declare interface GoogleInputProps {
   icon?: string;
   initialLocation?: string;
+  placeholder?: string;
   containerStyle?: string;
   textInputBackgroundColor?: string;
   handlePress?: ({

@@ -41,3 +41,10 @@ app-example
 # generated native folders
 /ios
 /android
+
+# graphify knowledge graph output
+/graphify-out
+
+# locally-installed agent skills (globally managed, not project source)
+.claude/skills/
+.agents/skills/

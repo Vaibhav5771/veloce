@@ -1,11 +1,11 @@
-import { Text, TouchableOpacity, View, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import Swiper from "react-native-swiper";
-import { useRef, useState } from "react";
-import { onboarding } from "@/constants";
 import CustomButton from "@/components/CustomButton";
 import GradientText from "@/components/GradientText";
+import { onboarding } from "@/constants";
+import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Swiper from "react-native-swiper";
 
 const Onboarding = () => {
   const swiperRef = useRef<Swiper>(null);
@@ -99,15 +99,17 @@ const Onboarding = () => {
         ))}
       </Swiper>
 
-      <CustomButton
-        title={isLastSlide ? "Get Started" : "Next"}
-        onPress={() =>
-          isLastSlide
-            ? router.replace("/(auth)/sign-up")
-            : swiperRef.current?.scrollBy(1)
-        }
-        className="w-10/12 mt-10"
-      />
+      <View className="w-full px-5">
+        <CustomButton
+          title={isLastSlide ? "Get Started" : "Next"}
+          onPress={() =>
+            isLastSlide
+              ? router.replace("/(auth)/sign-up")
+              : swiperRef.current?.scrollBy(1)
+          }
+          className="mt-10"
+        />
+      </View>
     </SafeAreaView>
   );
 };

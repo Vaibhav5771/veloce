@@ -33,36 +33,41 @@ const FindRide = () => {
   }, [params.latitude, params.longitude, params.address]);
 
   return (
-    <RideLayout title="Ride">
+    <RideLayout
+      title="Ride"
+      snapPoints={["60%", "90%"]}
+      footer={
+        <CustomButton
+          title="Find Now"
+          onPress={() => router.push(`/(root)/confirm-ride`)}
+        />
+      }
+    >
       <View className="my-3">
-        <Text className="text-lg font-JakartaSemiBold mb-3">From</Text>
+        <Text className="text-2xl font-JakartaBold text-white mb-3">From</Text>
 
         <GoogleTextInput
-          icon={icons.target}
+          icon={icons.point}
           initialLocation={userAddress ?? ""}
-          containerStyle="bg-neutral-100"
-          textInputBackgroundColor="#f5f5f5"
+          placeholder="From location"
+          containerStyle="rounded-full bg-[#EFF4FF]"
+          textInputBackgroundColor="#EFF4FF"
           handlePress={(location) => setUserLocation(location)}
         />
       </View>
 
       <View className="my-3">
-        <Text className="text-lg font-JakartaSemiBold mb-3">To</Text>
+        <Text className="text-2xl font-JakartaBold text-white mb-3">To</Text>
 
         <GoogleTextInput
-          icon={icons.map}
+          icon={icons.point}
           initialLocation={destinationAddress ?? ""}
-          containerStyle="bg-neutral-100"
-          textInputBackgroundColor="bg-neutral-100"
+          placeholder="To location"
+          containerStyle="rounded-full bg-[#EFF4FF]"
+          textInputBackgroundColor="#EFF4FF"
           handlePress={(location) => setDestinationLocation(location)}
         />
       </View>
-
-      <CustomButton
-        title="Find Now"
-        onPress={() => router.push(`/(root)/confirm-ride`)}
-        className="mt-5"
-      />
     </RideLayout>
   );
 };

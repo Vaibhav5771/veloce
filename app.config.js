@@ -25,6 +25,11 @@ export default {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: "com.anonymous.veloce",
+      config: {
+        googleMaps: {
+          apiKey: process.env.EXPO_PUBLIC_GOOGLE_API_KEY,
+        },
+      },
     },
     web: {
       output: "server",
@@ -35,7 +40,7 @@ export default {
       [
         "expo-router",
         {
-          origin: "http://localhost:8081/",
+          origin: "http://10.0.2.2:8081/",
         },
       ],
     ],

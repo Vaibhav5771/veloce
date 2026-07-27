@@ -5,11 +5,14 @@ import {
   Image,
   Text,
   Platform,
+  Modal,
+  TextInput,
 } from "react-native";
 import { images, icons } from "@/constants";
-import { ReactNode, useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
+import AlertModal from "@/components/AlertModal";
 import { Link, router } from "expo-router";
 import OAuth from "@/components/OAuth";
 import { useSignUp, useUser } from "@clerk/clerk-expo";
@@ -25,21 +28,6 @@ interface VerificationState {
   error: string;
   code: string;
 }
-
-interface ModalProps {
-  isVisible: boolean;
-  children: ReactNode;
-  onModalHide?: () => void;
-}
-
-const ReactNativeModal = ({ isVisible, children, onModalHide }: ModalProps) => {
-  if (!isVisible) return null;
-  return (
-    <View className="absolute inset-0 flex-1 justify-center items-center bg-black/50">
-      {children}
-    </View>
-  );
-};
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -58,6 +46,30 @@ const SignUp = () => {
     error: "",
     code: "",
   });
+
+  const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
+  const digitRefs = useRef<Array<TextInput | null>>(Array(6).fill(null));
+
+  const handleDigitChange = (index: number, value: string) => {
+    const digit = value.replace(/[^0-9]/g, "").slice(-1);
+    const newDigits = [...digits];
+    newDigits[index] = digit;
+    setDigits(newDigits);
+    setVerification((prev) => ({ ...prev, code: newDigits.join("") }));
+    if (digit && index < 5) {
+      digitRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (index: number, key: string) => {
+    if (key === "Backspace" && !digits[index] && index > 0) {
+      const newDigits = [...digits];
+      newDigits[index - 1] = "";
+      setDigits(newDigits);
+      setVerification((prev) => ({ ...prev, code: newDigits.join("") }));
+      digitRefs.current[index - 1]?.focus();
+    }
+  };
 
   const validateForm = () => {
     if (!form.name.trim()) {
@@ -227,12 +239,8 @@ const SignUp = () => {
   ]);
 
   const handleCancelVerification = () => {
-    setVerification((prev) => ({
-      ...prev,
-      state: "default",
-      error: "",
-      code: "",
-    }));
+    setDigits(Array(6).fill(""));
+    setVerification({ state: "default", error: "", code: "" });
   };
 
   return (
@@ -256,11 +264,6 @@ const SignUp = () => {
         </View>
 
         <View className="p-5">
-          {verification.state === "failed" && (
-            <Text className="text-red-500 mb-3 text-center">
-              {verification.error}
-            </Text>
-          )}
           <InputField
             label="Name"
             placeholder="Enter your name"
@@ -304,61 +307,101 @@ const SignUp = () => {
           </Link>
         </View>
 
-        <ReactNativeModal isVisible={verification.state === "pending"}>
-          <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px] w-4/5">
-            <Text className="text-2xl font-JakartaBold mb-2">Verification</Text>
-            <Text className="font-JakartaMedium mb-5">
-              We've sent a verification code to {form.email}
-            </Text>
-            <InputField
-              label="Code"
-              icon={icons.email}
-              placeholder="Enter Code"
-              value={verification.code}
-              keyboardType="numeric"
-              onChangeText={(code) =>
-                setVerification((prev) => ({ ...prev, code }))
-              }
-            />
-            {verification.error && (
-              <Text className="text-red-500 text-sm mt-1">
-                {verification.error}
-              </Text>
-            )}
-            <CustomButton
-              title="Verify Email"
-              onPress={onVerifyPress}
-              className="mt-5 bg-success-500"
-              disabled={isLoading}
-            />
-            <CustomButton
-              title="Cancel"
-              onPress={handleCancelVerification}
-              className="mt-3 bg-gray-500"
-            />
-          </View>
-        </ReactNativeModal>
+        <AlertModal
+          visible={verification.state === "failed"}
+          type="error"
+          title="Sign Up Failed"
+          message={verification.error}
+          onClose={handleCancelVerification}
+        />
 
-        <ReactNativeModal isVisible={showSuccessModal}>
-          <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px] w-4/5">
-            <Image
-              source={images.check}
-              className="w-[110px] h-[110px] mx-auto my-5"
-              resizeMode="contain"
-            />
-            <Text className="text-3xl font-JakartaMedium text-center">
-              Verified
-            </Text>
-            <Text className="text-base text-gray-400 font-Jakarta text-center mt-2">
-              You have successfully verified your account
-            </Text>
-            <CustomButton
-              title="Browse Home"
-              onPress={() => router.replace("/(root)/(tabs)/home")}
-              className="mt-5"
-            />
+        <Modal
+          visible={verification.state === "pending"}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={handleCancelVerification}
+        >
+          <View className="flex-1 justify-center items-center bg-black/70 px-8">
+            <View className="w-full bg-neutral-900 px-8 py-10 rounded-3xl items-center border-[0.5px] border-[#E2E2E2]">
+              <Text
+                className="text-3xl font-JakartaBold text-[#E51F2B] text-center"
+                style={{ lineHeight: 40 }}
+              >
+                Verify Email
+              </Text>
+              <Text className="text-sm font-JakartaMedium text-white/70 text-center mt-3">
+                We've sent a 6-digit code to{"\n"}{form.email}
+              </Text>
+
+              <View className="flex-row justify-between w-full mt-8 mb-2">
+                {Array(6)
+                  .fill(0)
+                  .map((_, i) => (
+                    <TextInput
+                      key={i}
+                      ref={(ref) => {
+                        digitRefs.current[i] = ref;
+                      }}
+                      value={digits[i]}
+                      onChangeText={(val) => handleDigitChange(i, val)}
+                      onKeyPress={({ nativeEvent }) =>
+                        handleKeyPress(i, nativeEvent.key)
+                      }
+                      keyboardType="numeric"
+                      maxLength={1}
+                      selectTextOnFocus
+                      selectionColor="#0286FF"
+                      cursorColor="#0286FF"
+                      style={{
+                        width: 44,
+                        height: 54,
+                        borderRadius: 10,
+                        borderWidth: 1.5,
+                        borderColor: digits[i]
+                          ? "#E51F2B"
+                          : "rgba(226,226,226,0.3)",
+                        backgroundColor: "rgba(255,255,255,0.07)",
+                        color: "white",
+                        fontSize: 24,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    />
+                  ))}
+              </View>
+
+              {!!verification.error && (
+                <Text className="text-red-400 text-sm font-JakartaMedium text-center mt-3">
+                  {verification.error}
+                </Text>
+              )}
+
+              <CustomButton
+                title={isLoading ? "Verifying..." : "Verify Email"}
+                onPress={onVerifyPress}
+                className="w-full mt-6"
+                disabled={isLoading || verification.code.length < 6}
+              />
+              <CustomButton
+                title="Cancel"
+                bgVariant="dark"
+                textVariant="light"
+                onPress={handleCancelVerification}
+                className="w-full mt-3"
+              />
+            </View>
           </View>
-        </ReactNativeModal>
+        </Modal>
+
+        <AlertModal
+          visible={showSuccessModal}
+          type="success"
+          title="Verified!"
+          message="You have successfully verified your account"
+          buttonText="Done"
+          onClose={() => router.replace("/(root)/(tabs)/home")}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );

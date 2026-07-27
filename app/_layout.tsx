@@ -1,11 +1,12 @@
 // app/_layout.tsx
 import React, { useEffect, useState } from "react";
-import { View, Image } from "react-native";
+import { View, Image, Platform, ActivityIndicator, Text } from "react-native";
 import Constants from "expo-constants";
 import { useFonts } from "expo-font";
-import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { Slot } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import * as NavigationBar from "expo-navigation-bar";
 
 const CLERK_PUBLISHABLE_KEY =
   Constants.expoConfig?.extra?.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
@@ -22,6 +23,60 @@ const tokenCache = {
     await SecureStore.deleteItemAsync(key);
   },
 };
+
+// Gates the app on Clerk being ready. Shows a visible loading state instead of a
+// blank white screen, and a hint if it's taking too long (usually a network issue).
+function InitialLayout() {
+  const { isLoaded } = useAuth();
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    if (isLoaded) return;
+    const t = setTimeout(() => setSlow(true), 10000);
+    return () => clearTimeout(t);
+  }, [isLoaded]);
+
+  if (!isLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#000000",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 32,
+        }}
+      >
+        <ActivityIndicator size="large" color="#00FF1A" />
+        <Text
+          style={{
+            color: "#FFFFFF",
+            marginTop: 18,
+            fontSize: 16,
+            fontFamily: "Jakarta-SemiBold",
+          }}
+        >
+          {slow ? "Still connecting…" : "Connecting…"}
+        </Text>
+        {slow && (
+          <Text
+            style={{
+              color: "#858585",
+              marginTop: 8,
+              fontSize: 13,
+              textAlign: "center",
+              fontFamily: "Jakarta-Medium",
+            }}
+          >
+            Check your internet connection and try again.
+          </Text>
+        )}
+      </View>
+    );
+  }
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -46,6 +101,12 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontsError]);
 
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+    NavigationBar.setBackgroundColorAsync("#000000").catch(() => {});
+    NavigationBar.setButtonStyleAsync("light").catch(() => {});
+  }, []);
+
   if (showSplash || !fontsLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: "#000000" }}>
@@ -69,9 +130,7 @@ export default function RootLayout() {
       publishableKey={CLERK_PUBLISHABLE_KEY}
       tokenCache={tokenCache}
     >
-      <ClerkLoaded>
-        <Slot />
-      </ClerkLoaded>
+      <InitialLayout />
     </ClerkProvider>
   );
 }

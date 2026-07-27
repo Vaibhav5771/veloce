@@ -12,6 +12,7 @@ import { images, icons } from "@/constants";
 import { useState, useCallback } from "react";
 import InputField from "@/components/InputField";
 import CustomButton from "@/components/CustomButton";
+import AlertModal from "@/components/AlertModal";
 import { Link, useRouter } from "expo-router";
 import OAuth from "@/components/OAuth";
 import { useSignIn } from "@clerk/clerk-expo";
@@ -24,6 +25,7 @@ const SignIn = () => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const onSignInPress = useCallback(async () => {
     if (!isLoaded) return;
@@ -38,9 +40,15 @@ const SignIn = () => {
         router.replace("/");
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
+        setError("Unable to sign in. Please check your details and try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      setError(
+        err.errors?.[0]?.longMessage ??
+          err.errors?.[0]?.message ??
+          "Failed to sign in. Please try again.",
+      );
     }
   }, [isLoaded, form.email, form.password]);
 
@@ -95,10 +103,16 @@ const SignIn = () => {
               <Text className="text-primary-500">Sign Up</Text>
             </Link>
           </View>
-
-          <View className="flex-1 bg-white" />
         </ScrollView>
       </TouchableWithoutFeedback>
+
+      <AlertModal
+        visible={!!error}
+        type="error"
+        title="Sign In Failed"
+        message={error}
+        onClose={() => setError("")}
+      />
     </KeyboardAvoidingView>
   );
 };
