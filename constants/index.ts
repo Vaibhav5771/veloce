@@ -74,9 +74,9 @@ export const icons = {
 export const onboarding = [
   {
     id: 1,
-    title: "The luxery ride is just a tap away!",
+    title: "The luxury ride is just a tap away!",
     description:
-      "Your journey begins with Ryde. Find your ideal ride effortlessly.",
+      "Your journey begins with Veloce. Find your ideal ride effortlessly.",
     image: images.onboarding1,
   },
   {

@@ -99,7 +99,7 @@ const Onboarding = () => {
         ))}
       </Swiper>
 
-      <View className="w-full px-5">
+      <View className="w-full px-5 pb-5">
         <CustomButton
           title={isLastSlide ? "Get Started" : "Next"}
           onPress={() =>

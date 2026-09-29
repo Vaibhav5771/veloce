@@ -7,6 +7,7 @@ export async function GET(request: Request, { id }: Record<string, string>) {
 
     const rows = await sql`
       SELECT
+        rides.id,
         rides.origin_address,
         rides.destination_address,
         rides.origin_latitude,
@@ -29,6 +30,7 @@ export async function GET(request: Request, { id }: Record<string, string>) {
     `;
 
     const rides = rows.map((row) => ({
+      id: row.id,
       origin_address: row.origin_address,
       destination_address: row.destination_address,
       origin_latitude: row.origin_latitude,

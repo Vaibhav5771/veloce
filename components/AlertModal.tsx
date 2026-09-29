@@ -9,6 +9,11 @@ type AlertModalProps = {
   message?: string;
   buttonText?: string;
   onClose: () => void;
+  // Optional primary-button action. Defaults to onClose so existing alert
+  // usages are unchanged; pass it to use this as a confirm dialog where the
+  // primary button does something other than just dismiss (e.g. "Delete"),
+  // while the back button / dismiss still safely runs onClose.
+  onButtonPress?: () => void;
   secondaryButtonText?: string;
   onSecondaryPress?: () => void;
 };
@@ -20,6 +25,7 @@ const AlertModal = ({
   message,
   buttonText = "Done",
   onClose,
+  onButtonPress,
   secondaryButtonText,
   onSecondaryPress,
 }: AlertModalProps) => {
@@ -69,7 +75,7 @@ const AlertModal = ({
             title={buttonText}
             bgVariant={isError ? "danger" : "primary"}
             textVariant={isError ? "light" : "default"}
-            onPress={onClose}
+            onPress={onButtonPress ?? onClose}
           />
 
           {!!secondaryButtonText && (

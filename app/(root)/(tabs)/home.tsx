@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
 import Map from "@/components/Map";
 import * as Location from "expo-location";
@@ -13,15 +13,23 @@ import GradientText from "@/components/GradientText";
 import { useFetch } from "@/lib/fetch";
 import { useLocationStore } from "@/store";
 import { Ride } from "@/types/type";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Page() {
   const { user } = useUser();
   const { setUserLocation, setDestinationLocation } = useLocationStore();
 
   const userEmail = user?.emailAddresses?.[0]?.emailAddress ?? "";
-  const { data: recentRides, loading } = useFetch<Ride[]>(
+  const { data: recentRides, loading, refetch } = useFetch<Ride[]>(
     userEmail ? `/(api)/ride/${encodeURIComponent(userEmail)}` : "",
+  );
+
+  // Tab screens stay mounted, so refetch whenever Home regains focus. This keeps
+  // Recent Rides in sync with deletions made on the Your Rides tab.
+  useFocusEffect(
+    useCallback(() => {
+      if (userEmail) refetch();
+    }, [userEmail, refetch]),
   );
 
   const [hasPermissions, setHasPermissions] = useState(false);

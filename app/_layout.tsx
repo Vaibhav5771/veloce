@@ -8,8 +8,14 @@ import { Slot } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import * as NavigationBar from "expo-navigation-bar";
 
+// Read the key from process.env first: Metro statically inlines EXPO_PUBLIC_*
+// vars into the bundle at build time, so this is reliable and does not depend on
+// a fresh app.config.js manifest. Fall back to Constants.expoConfig.extra for
+// environments where the direct inline isn't available (e.g. some web/SSR builds).
 const CLERK_PUBLISHABLE_KEY =
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ??
+  Constants.expoConfig?.extra?.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ??
+  "";
 
 // TokenCache implementation
 const tokenCache = {
@@ -119,9 +125,46 @@ export default function RootLayout() {
     );
   }
 
+  // If the key never made it into the bundle, fail loudly with a readable screen
+  // instead of mounting ClerkProvider with an empty key (which hangs forever on
+  // "Still connecting…"). This makes a config/cache problem obvious at a glance.
   if (!CLERK_PUBLISHABLE_KEY) {
     console.error(
-      "Missing Clerk publishable key. Set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.",
+      "Missing Clerk publishable key. Set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in .env, then restart with `npx expo start -c`.",
+    );
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#000000",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 32,
+        }}
+      >
+        <Text
+          style={{
+            color: "#FF4D4D",
+            fontSize: 16,
+            textAlign: "center",
+            fontFamily: "Jakarta-SemiBold",
+          }}
+        >
+          Missing Clerk publishable key
+        </Text>
+        <Text
+          style={{
+            color: "#858585",
+            marginTop: 8,
+            fontSize: 13,
+            textAlign: "center",
+            fontFamily: "Jakarta-Medium",
+          }}
+        >
+          Set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in .env, then restart the dev
+          server with `npx expo start -c`.
+        </Text>
+      </View>
     );
   }
 

@@ -47,7 +47,7 @@ const BookRide = () => {
             Ride Price
           </Text>
           <Text className="text-base font-JakartaSemiBold text-[#00FF1A]">
-            ${driverDetails?.price}
+            ₹{driverDetails?.price}
           </Text>
         </View>
 

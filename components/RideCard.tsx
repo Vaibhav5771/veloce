@@ -1,10 +1,12 @@
 import { Ride } from "@/types/type";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { icons } from "@/constants";
 import { formatDate, formatTime } from "@/lib/utils";
 
 const RideCard = ({
   ride: {
+    id,
     destination_longitude,
     destination_latitude,
     origin_address,
@@ -14,11 +16,24 @@ const RideCard = ({
     driver,
     payment_status,
   },
+  onDelete,
 }: {
   ride: Ride;
+  onDelete?: (id: number) => void;
 }) => {
   return (
-    <View className="bg-neutral-900 rounded-2xl border-[0.5px] border-[#2A2A2A] p-4 mb-4">
+    <View className="relative bg-neutral-900 rounded-2xl border-[0.5px] border-[#2A2A2A] p-4 mb-4">
+      {onDelete && (
+        <TouchableOpacity
+          onPress={() => onDelete(id)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityLabel="Delete ride"
+          className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/60 items-center justify-center"
+        >
+          <Ionicons name="trash-outline" size={16} color="#E51F2B" />
+        </TouchableOpacity>
+      )}
+
       {/* Top: map thumbnail + addresses */}
       <View className="flex flex-row items-center">
         <Image
@@ -28,7 +43,7 @@ const RideCard = ({
           className="w-[90px] h-[90px] rounded-xl"
         />
 
-        <View className="flex-1 flex-col ml-4 gap-y-4">
+        <View className={`flex-1 flex-col ml-4 gap-y-4 ${onDelete ? "pr-8" : ""}`}>
           {/* Origin */}
           <View className="flex flex-row items-center gap-x-3">
             <Image

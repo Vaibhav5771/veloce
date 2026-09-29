@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, TextInput, Image, TouchableOpacity, Text } from "react-native";
+import {
+  View,
+  TextInput,
+  Image,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { icons } from "@/constants";
@@ -7,6 +14,10 @@ import { GoogleInputProps } from "@/types/type";
 import { router } from "expo-router";
 
 const googlePlacesApiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY || "";
+
+// Places Autocomplete caps out at 5 predictions with no pagination, so the
+// footer reveals the ones already fetched rather than requesting another page.
+const INITIAL_VISIBLE = 3;
 
 interface PlaceSuggestion {
   description: string;
@@ -23,6 +34,7 @@ const GoogleTextInput = ({
 }: GoogleInputProps) => {
   const [query, setQuery] = useState(initialLocation ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -39,6 +51,7 @@ const GoogleTextInput = ({
   const fetchSuggestions = async (input: string) => {
     if (!input || input.length < 2) {
       setSuggestions([]);
+      setShowAll(false);
       return;
     }
     try {
@@ -50,8 +63,10 @@ const GoogleTextInput = ({
       const data = await res.json();
       if (data.status === "OK" && data.predictions) {
         setSuggestions(data.predictions);
+        setShowAll(false);
       } else {
         setSuggestions([]);
+        setShowAll(false);
       }
     } catch (err) {
       console.error(err);
@@ -63,6 +78,7 @@ const GoogleTextInput = ({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!text.trim()) {
       setSuggestions([]);
+      setShowAll(false);
       return;
     }
     debounceRef.current = setTimeout(() => fetchSuggestions(text), 300);
@@ -72,6 +88,7 @@ const GoogleTextInput = ({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setQuery("");
     setSuggestions([]);
+    setShowAll(false);
   };
 
   // Handle selecting a suggestion
@@ -122,10 +139,16 @@ const GoogleTextInput = ({
 
       setQuery(place.description);
       setSuggestions([]);
+      setShowAll(false);
     } catch (err) {
       console.error(err);
     }
   };
+
+  const visibleSuggestions = showAll
+    ? suggestions
+    : suggestions.slice(0, INITIAL_VISIBLE);
+  const canLoadMore = !showAll && suggestions.length > INITIAL_VISIBLE;
 
   return (
     <View
@@ -192,43 +215,77 @@ const GoogleTextInput = ({
             shadowOpacity: 0.4,
             shadowRadius: 6,
             elevation: 24,
-            maxHeight: 220,
             zIndex: 9999,
             overflow: "hidden",
           }}
         >
-          {suggestions.map((item) => (
+          <ScrollView
+            style={{ maxHeight: 220 }}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+          >
+            {visibleSuggestions.map((item, index) => (
+              <TouchableOpacity
+                key={item.place_id}
+                onPress={() => handlePlaceSelect(item)}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  paddingVertical: 14,
+                  paddingHorizontal: 16,
+                  borderBottomWidth:
+                    index === visibleSuggestions.length - 1 ? 0 : 0.5,
+                  borderBottomColor: "#2A2A2A",
+                }}
+              >
+                <Text
+                  style={{
+                    flex: 1,
+                    fontSize: 15,
+                    color: "#FFFFFF",
+                    fontWeight: "500",
+                  }}
+                  numberOfLines={2}
+                >
+                  {item.description}
+                </Text>
+                <Ionicons
+                  name="arrow-forward"
+                  size={18}
+                  color="#0286FF"
+                  style={{ marginLeft: 10 }}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Footer */}
+          {canLoadMore && (
             <TouchableOpacity
-              key={item.place_id}
-              onPress={() => handlePlaceSelect(item)}
+              onPress={() => setShowAll(true)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                paddingVertical: 14,
-                paddingHorizontal: 16,
-                borderBottomWidth: 0.5,
-                borderBottomColor: "#2A2A2A",
+                justifyContent: "center",
+                paddingVertical: 12,
+                borderTopWidth: 0.5,
+                borderTopColor: "#2A2A2A",
+                backgroundColor: "#1F1F1F",
               }}
             >
               <Text
-                style={{
-                  flex: 1,
-                  fontSize: 15,
-                  color: "#FFFFFF",
-                  fontWeight: "500",
-                }}
-                numberOfLines={2}
+                style={{ fontSize: 14, fontWeight: "600", color: "#0286FF" }}
               >
-                {item.description}
+                Load more
               </Text>
               <Ionicons
-                name="arrow-forward"
-                size={18}
+                name="chevron-down"
+                size={16}
                 color="#0286FF"
-                style={{ marginLeft: 10 }}
+                style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
-          ))}
+          )}
         </View>
       )}
     </View>

@@ -47,7 +47,7 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
 
         <View className="flex flex-row items-center">
           <Text className="text-sm font-JakartaSemiBold text-[#00FF1A]">
-            ${item.price}
+            ₹{item.price}
           </Text>
           <Text className="text-general-200 mx-2">|</Text>
           <Text className="text-sm font-JakartaMedium text-general-200">

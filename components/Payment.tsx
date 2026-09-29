@@ -7,6 +7,10 @@ import CustomButton from "@/components/CustomButton";
 import { useLocationStore } from "@/store";
 import { PaymentProps } from "@/types/type";
 
+// Razorpay prefills the contact from its saved customer record when this is blank,
+// which surfaces a stale number on the OTP screen.
+const CONTACT_NUMBER = "9923307579";
+
 const humanize = (value: string) => value.replace(/_/g, " ");
 
 // react-native-razorpay rejects checkout with { code, description }. On an actual
@@ -99,7 +103,7 @@ const Payment = ({
         currency: "INR",
         name: "Veloce",
         description: "Ride payment",
-        prefill: { name: fullName, email, contact: "" },
+        prefill: { name: fullName, email, contact: CONTACT_NUMBER },
         theme: { color: "#00FF1A" },
       };
       const data = await RazorpayCheckout.open(options);

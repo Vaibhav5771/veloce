@@ -28,14 +28,27 @@ const OAuth = () => {
 
   const handleGoogleSignIn = useCallback(async () => {
     try {
-      const { createdSessionId, setActive } = await startSSOFlow({
-        strategy: "oauth_google",
-      });
+      // No `redirectUrl` here on purpose: Clerk defaults to
+      // `<scheme>://sso-callback`, which app/sso-callback.tsx renders. Changing
+      // one without the other brings back the "Unmatched Route" flash.
+      const { createdSessionId, setActive, authSessionResult } =
+        await startSSOFlow({
+          strategy: "oauth_google",
+        });
 
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
         router.replace("/");
+        return;
       }
+
+      // The user dismissed the Google sheet - stay put, nothing went wrong.
+      if (authSessionResult?.type !== "success") return;
+
+      // Came back from Google but no session exists (e.g. the transfer to a new
+      // user failed). Without this the user is stranded on the callback screen.
+      router.replace("/(auth)/sign-in");
+      setError("Google sign-in did not complete. Please try again.");
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
       setError(

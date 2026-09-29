@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Veloce — Rider Personas</title>
+<style>
+/*@FONT_FACES@*/
+
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { background: #000; }
+body {
+  margin: 0;
+  font-family: "VelJakarta", "Segoe UI", Arial, sans-serif;
+  font-weight: 400;
+  color: #ffffff;
+  background: #000000;
+}
+.orbitron { font-family: "VelOrbitron", "Segoe UI", sans-serif; }
+.jakarta-xb { font-family: "VelJakartaXB", "VelJakarta", sans-serif; }
+.jakarta-sb { font-family: "VelJakartaSB", "VelJakarta", sans-serif; }
+.jakarta-md { font-family: "VelJakartaMd", "VelJakarta", sans-serif; }
+.jakarta-it { font-family: "VelJakartaIt", "VelJakarta", sans-serif; font-style: italic; }
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 16mm 17mm;
+  page-break-after: always;
+  position: relative;
+  background: #000000;
+  overflow: hidden;
+}
+.page:last-child { page-break-after: auto; }
+
+/* ---- cover page ---- */
+.cover {
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 265mm;
+}
+.cover::before{
+  content:"";
+  position:absolute; left:50%; top:38mm; transform: translateX(-50%);
+  width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(98,117,223,0.30) 0%, rgba(212,24,63,0.14) 45%, rgba(0,0,0,0) 72%);
+  z-index: 0;
+}
+.cover-top{ position: relative; z-index: 1; }
+.cover-eyebrow{
+  font-size: 11px; letter-spacing: 0.16em; color: #858585;
+  margin-bottom: 26px;
+}
+.wordmark{
+  font-size: 64px; font-weight: 700; letter-spacing: 0.01em;
+  background: linear-gradient(90deg, #6275DF 0%, #D4183F 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin: 0 0 10px 0;
+}
+.cover-tagline{
+  font-size: 30px; line-height: 1.25; color: #ffffff; max-width: 480px;
+  margin: 26px 0 14px 0;
+}
+.cover-tagline b{ color: #00FF1A; font-weight: 700; }
+.cover-sub{ font-size: 14.5px; line-height: 1.6; color: #858585; max-width: 520px; }
+
+.cover-index{ position: relative; z-index: 1; }
+.cover-index-title{
+  font-size: 11px; letter-spacing: 0.14em; color: #565656; margin-bottom: 14px;
+  border-top: 1px solid #262626; padding-top: 18px;
+}
+.idx-row{
+  display:flex; align-items:baseline; gap: 14px; padding: 9px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.idx-num{ font-size: 13px; color: #565656; width: 22px; }
+.idx-name{ font-size: 15.5px; font-weight: 600; flex: 1; }
+.idx-role{ font-size: 11px; letter-spacing: 0.06em; color: #858585; }
+.idx-dot{ width: 8px; height: 8px; border-radius: 50%; }
+
+/* ---- persona card ---- */
+.badges{ display:flex; gap:8px; margin-bottom:18px; }
+.badge{
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 6px 13px; border-radius: 999px;
+}
+.badge-num{ color:#000; }
+.badge-role{ border: 1px solid #333333; color: #999999; background: transparent; }
+
+.p-name{ font-size: 32px; font-weight: 700; margin: 0 0 20px 0; color:#fff; }
+
+.top-grid{ display:grid; grid-template-columns: 168px 1fr; gap: 24px; margin-bottom: 22px; }
+.emblem{
+  width:168px; height:200px; border-radius:16px;
+  background:#0d0d0d; border: 1.5px solid #2a2a2a;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.emblem::before{
+  content:""; position:absolute; inset:8px; border-radius:11px;
+  border: 1.5px solid var(--pc); opacity: 0.75; z-index:2; pointer-events:none;
+}
+.emblem img{
+  width:100%; height:100%; object-fit:cover; object-position: center 20%;
+  filter: grayscale(28%) contrast(1.06);
+  display:block;
+}
+.emblem.split{ padding:0; gap:0; }
+.emblem.split img{ width:50%; height:100%; float:left; }
+.emblem-initials{ font-size: 46px; font-weight:700; color: var(--pc); letter-spacing: 0.02em; }
+
+.quote{
+  font-size: 16.5px; line-height:1.5; color:#ffffff;
+  border-left: 3px solid var(--pc);
+  padding-left: 15px; margin: 2px 0 13px 0;
+}
+.desc{ font-size: 13.3px; line-height:1.64; color:#a3a3a3; margin:0; }
+
+.boxes{ display:grid; grid-template-columns: repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.box{ background:#0c0c0c; border:1px solid #232323; border-radius:12px; padding:14px 16px; }
+.box h4{
+  font-size: 10.5px; letter-spacing:0.08em; color:#6b6b6b;
+  margin:0 0 10px 0; text-transform: uppercase;
+}
+.box ul{ margin:0; padding-left:15px; }
+.box li{ font-size:12.2px; line-height:1.6; color:#d6d6d6; }
+
+.twocol{ display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-bottom:18px; }
+.twocol h4{ font-size:13px; font-weight:700; margin:0 0 9px 0; color:#fff; }
+.twocol ul{ margin:0; padding-left:15px; }
+.twocol li{ font-size:12.6px; line-height:1.65; color:#c4c4c4; }
+
+.fit{
+  font-size: 12.6px; line-height:1.6; color:#a3a3a3;
+  border-top: 1px solid #1e1e1e; padding-top:14px;
+}
+.fit b{ color:#00FF1A; font-weight:700; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const PERSONAS = [
+  {
+    num:"01", role:"BRIDE", name:"Ananya Rao", initials:"AR", color:"#6275DF", img:"avatars/ananya-rao.jpg",
+    quote:"I don't want to call three agencies and wait around for a callback. I want to book this the way I book everything else — and actually know it's handled.",
+    desc:"Ananya is getting married in six months and wants a surprise supercar arrival at her wedding reception — a moment for her partner, and for the photos. She'll pay well above a normal ride for an experience this important, but has zero tolerance for uncertainty on the one day that can't be redone.",
+    demo:["Age 29 · Female","Senior Product Manager, Fintech","Bengaluru, India","Income: ₹38,00,000/yr"],
+    traits:["Detail-oriented planner","Tech-native, expects instant service","Pays a premium for certainty","Low tolerance for ambiguity"],
+    motiv:["A flawless, camera-ready arrival","Confidence nothing goes wrong","Booking it like she books everything"],
+    goals:["Book weeks out with a firm confirmation","Know exactly which car & driver are coming","Track the ride live on the day","Skip the call-and-negotiate cycle"],
+    frustr:["Agencies require forms + phone calls","Confirmation can take up to 4 hours","Pricing feels negotiated, not fixed","No visibility once “booked”"],
+    fit:"instant book-ride / confirm-ride flow &middot; Razorpay fixed pricing &middot; live track-ride visibility"
+  },
+  {
+    num:"02", role:"PROPOSER", name:"Rohan Mehta", initials:"RM", color:"#0286FF", img:"avatars/rohan-mehta.jpg",
+    quote:"If the car shows up two minutes late, the whole surprise is ruined.",
+    desc:"Rohan is planning an elaborate rooftop proposal and wants a supercar to arrive at the exact right second as the centerpiece of the moment. Timing precision and live visibility matter to him more than anything else — a mistimed arrival ruins the surprise entirely.",
+    demo:["Age 31 · Male","Software Engineer","Bengaluru, India","Income: ₹28,00,000/yr"],
+    traits:["Detail-obsessed planner","Anxious about timing","First-time exotic-car booker","Tech-savvy"],
+    motiv:["A perfectly timed, surprise-proof arrival","Confidence the plan won't unravel","A memorable story to tell"],
+    goals:["Coordinate the exact arrival minute","Track the car's live ETA while hiding at the venue","Reach the driver directly if plans shift"],
+    frustr:["No real-time ETA from traditional agencies","Can't reach a human quickly if timing changes","No guarantee the driver understands the stakes"],
+    fit:"live GPS tracking &middot; driver info / contact card &middot; real-time ETA visibility"
+  },
+  {
+    num:"03", role:"BIRTHDAY CELEBRANT", name:"Priya Nair", initials:"PN", color:"#D4183F", img:"avatars/priya-nair.jpg",
+    quote:"This one's for me — I don't want it to feel like a transaction.",
+    desc:"Priya is turning 40 and treating herself to a memorable, camera-ready arrival at her own birthday party. She books solo and wants the whole experience to feel personal and effortless, not transactional like a car rental.",
+    demo:["Age 40 · Female","Marketing Director","Mumbai, India","Income: ₹42,00,000/yr"],
+    traits:["Independent","Experience-driven spender","Values polish over paperwork","Active on Instagram"],
+    motiv:["A “made it” milestone moment","A frictionless, personal-feeling booking","A content-worthy experience"],
+    goals:["Book quickly, no lengthy back-and-forth","Feel like a guest, not a renter","Enjoy the moment instead of managing it"],
+    frustr:["Rental processes feel transactional","Long forms for what should be simple","Uncertainty kills the treat-yourself feeling"],
+    fit:"one-tap booking (find-ride / book-ride) &middot; recent-rides for easy rebooking &middot; polished in-app experience end-to-end"
+  },
+  {
+    num:"04", role:"ANNIVERSARY COUPLE", name:"Vikram & Sunita Desai", initials:"VS", color:"#EAB308", imgs:["avatars/vikram-desai.jpg","avatars/sunita-desai.jpg"],
+    quote:"We just want it simple enough that we don't need to call anyone.",
+    desc:"Vikram and Sunita are celebrating 25 years married with a vow-renewal supercar arrival. Less tech-fluent than the app's younger riders, they need the booking flow simple enough that their adult children can set it up for them, with a confirmation clear enough that they trust it happened.",
+    demo:["Ages 58 & 55","Semi-retired","Delhi, India","Household income: ₹45,00,000/yr"],
+    traits:["Less tech-fluent","Value clear, simple confirmations","Rely on family for digital tasks","Cautious with new apps"],
+    motiv:["A meaningful, low-hassle celebration","Trusting the booking went through","Not needing to manage the tech themselves"],
+    goals:["Let a family member book on their behalf easily","Get unambiguous, jargon-free confirmation","A simple day-of experience, no troubleshooting"],
+    frustr:["Complex apps/processes feel intimidating","Unclear whether a booking “really” went through","No one to call if something looks off"],
+    fit:"simple confirm-ride status screen &middot; shareable booking confirmation &middot; rides history any family member can check"
+  },
+  {
+    num:"05", role:"GIFT GIVER", name:"Anil Kapoor", initials:"AK", color:"#0CC25F", img:"avatars/anil-kapoor.jpg",
+    quote:"I just don't want a surprise bill after the fact.",
+    desc:"Anil is booking a supercar arrival for his daughter's 18th birthday / prom send-off. Since this is a one-off spend on someone else's moment, he's more price-sensitive than the app's other riders — transparent, fixed pricing matters to him more than anything else.",
+    demo:["Age 54 · Male","Business Owner","Pune, India","Income: ₹25,00,000/yr"],
+    traits:["Budget-conscious","Protective, generous parent","Wants no surprises","Practical decision-maker"],
+    motiv:["Giving his daughter a memorable moment","A fair, predictable price","Avoiding regret over hidden costs"],
+    goals:["See the full price before confirming","Know there are no add-on fees later","Make the day special without overspending"],
+    frustr:["Agencies negotiate pricing case-by-case","Hidden fees appear after booking","Hard to budget for in advance"],
+    fit:"transparent Razorpay fixed pricing shown upfront &middot; no hidden fees &middot; easy one-off booking, no long-term account needed"
+  }
+];
+
+function coverPage(){
+  const rows = PERSONAS.map(p => `
+    <div class="idx-row">
+      <span class="idx-num orbitron">${p.num}</span>
+      <span class="idx-name jakarta-sb">${p.name}</span>
+      <span class="idx-role">${p.role}</span>
+      <span class="idx-dot" style="background:${p.color}"></span>
+    </div>`).join("");
+  return `
+  <div class="page cover">
+    <div class="cover-top">
+      <div class="cover-eyebrow jakarta-md">RIDER PERSONAS &middot; CASE STUDY</div>
+      <div class="wordmark orbitron">VELOCE</div>
+      <div class="cover-tagline jakarta-xb">Nobody books a supercar<br>on an <b>ordinary</b> day.</div>
+      <p class="cover-sub jakarta-md">Five riders, five milestones they can't get wrong — and the same failure in every existing option: a form, a phone call, hours of waiting, and no visibility until the car shows up. This is who Veloce's instant-booking, transparent-pricing, live-tracked flow is actually built for.</p>
+    </div>
+    <div class="cover-index">
+      <div class="cover-index-title jakarta-sb">IN THIS DOCUMENT</div>
+      ${rows}
+    </div>
+  </div>`;
+}
+
+function emblem(p){
+  if (p.imgs) {
+    return `<div class="emblem split">${p.imgs.map(src=>`<img src="${src}" alt="">`).join("")}</div>`;
+  }
+  if (p.img) {
+    return `<div class="emblem"><img src="${p.img}" alt=""></div>`;
+  }
+  return `<div class="emblem"><span class="emblem-initials orbitron">${p.initials}</span></div>`;
+}
+
+function personaPage(p){
+  return `
+  <div class="page" style="--pc:${p.color}">
+    <div class="badges">
+      <span class="badge badge-num orbitron" style="background:${p.color}">${p.num}</span>
+      <span class="badge badge-role jakarta-sb">${p.role}</span>
+    </div>
+    <h1 class="p-name jakarta-xb">${p.name}</h1>
+    <div class="top-grid">
+      ${emblem(p)}
+      <div>
+        <p class="quote jakarta-it">&ldquo;${p.quote}&rdquo;</p>
+        <p class="desc jakarta-md">${p.desc}</p>
+      </div>
+    </div>
+    <div class="boxes">
+      <div class="box"><h4 class="jakarta-sb">Demographics</h4><ul>${p.demo.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+      <div class="box"><h4 class="jakarta-sb">Traits</h4><ul>${p.traits.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+      <div class="box"><h4 class="jakarta-sb">Motivations</h4><ul>${p.motiv.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+    </div>
+    <div class="twocol">
+      <div><h4 class="jakarta-xb">Goals</h4><ul>${p.goals.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+      <div><h4 class="jakarta-xb">Frustrations</h4><ul>${p.frustr.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+    </div>
+    <div class="fit jakarta-md"><b>MAPS TO VELOCE&nbsp;&middot;&nbsp;</b>${p.fit}</div>
+  </div>`;
+}
+
+document.getElementById("root").innerHTML = coverPage() + PERSONAS.map(personaPage).join("");
+</script>
+</body>
+</html>

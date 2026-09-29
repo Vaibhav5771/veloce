@@ -20,7 +20,7 @@ export default {
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#000000",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
@@ -37,6 +37,7 @@ export default {
       favicon: "./assets/images/favicon.png",
     },
     plugins: [
+      "./plugins/withAbiSplits",
       [
         "expo-router",
         {
