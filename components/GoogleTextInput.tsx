@@ -35,7 +35,7 @@ const GoogleTextInput = ({
   const [query, setQuery] = useState(initialLocation ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [showAll, setShowAll] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setQuery(initialLocation ?? "");
