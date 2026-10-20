@@ -40,7 +40,7 @@ const Rides = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, user_email: userEmail }),
       });
-      // fetchAPI resolves even on non-2xx, so check the payload.
+      // fetchAPI throws on non-2xx; this also catches a 200 carrying an error body.
       if (result?.error) throw new Error(result.error);
       refetch();
     } catch {

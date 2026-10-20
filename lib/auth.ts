@@ -39,14 +39,21 @@ export const googleOAuth = async (startOAuthFlow: any) => {
         await setActive({ session: createdSessionId });
 
         if (signUp.createdUserId) {
-          await fetchAPI("/(api)/user", {
-            method: "POST",
-            body: JSON.stringify({
-              name: `${signUp.firstName} ${signUp.lastName}`,
-              email: signUp.emailAddress,
-              clerkId: signUp.createdUserId,
-            }),
-          });
+          // Mirroring the user into our own database is secondary: Clerk has
+          // already created the session, so a failure here must not surface as
+          // a failed sign-in.
+          try {
+            await fetchAPI("/(api)/user", {
+              method: "POST",
+              body: JSON.stringify({
+                name: `${signUp.firstName} ${signUp.lastName}`,
+                email: signUp.emailAddress,
+                clerkId: signUp.createdUserId,
+              }),
+            });
+          } catch (mirrorError) {
+            console.error("Could not mirror user to database:", mirrorError);
+          }
         }
 
         return {
@@ -63,10 +70,15 @@ export const googleOAuth = async (startOAuthFlow: any) => {
     };
   } catch (err: any) {
     console.error(err);
+    // Clerk errors carry an `errors` array; anything else (a network failure,
+    // a plain Error) does not, so fall back rather than indexing into undefined.
     return {
       success: false,
-      code: err.code,
-      message: err?.errors[0]?.longMessage,
+      code: err?.code,
+      message:
+        err?.errors?.[0]?.longMessage ??
+        err?.message ??
+        "An error occurred while signing in with Google",
     };
   }
 };
