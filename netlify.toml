@@ -3,6 +3,10 @@
   functions = "netlify/functions"
   publish = "dist/client"
 
+[build.environment]
+  # Match local dev; Netlify's default can lag behind what Expo SDK 54 needs.
+  NODE_VERSION = "22"
+
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/server"
