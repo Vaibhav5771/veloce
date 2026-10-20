@@ -1,50 +1,62 @@
-# Welcome to your Expo app 👋
+# Veloce
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A ride-booking app for Android and iOS. Search a destination, pick a ride, pay for it, and watch
+it arrive — with real authentication, a real payment gateway and a real database behind it.
 
-## Get started
+**Expo SDK 54** · React Native 0.81 · React 19 · expo-router · NativeWind · Zustand · Clerk ·
+Neon serverless Postgres · Razorpay · Google Maps Platform
 
-1. Install dependencies
+<!--
+  Screenshots: drop them in here as a row once captured.
+  | Home | Choose a ride | Payment | Tracking |
+  |---|---|---|---|
+  | ![](docs/screens/home.png) | ![](docs/screens/choose.png) | … |
+-->
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## What it does
 
-   ```bash
-   npx expo start
-   ```
+Sign in with email or Google, search a destination with Places Autocomplete, see the route drawn
+on a live map, choose from available rides with fare and pickup time, pay through the native
+Razorpay sheet, then track the car in. Every ride is saved and shows up in your history, where
+you can delete it.
 
-In the output, you'll find options to open the app in a
+## Scope
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+The rider side is complete and real end to end:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Auth** — Clerk email/password with verification codes, plus Google OAuth, sessions in secure
+  storage
+- **Maps** — device GPS, reverse geocoding, Google Places Autocomplete, a real Directions route
+- **Payments** — a genuine Razorpay order, created server-side, with the signature verified
+  server-side before any ride is written
+- **Persistence** — rides and users in Neon serverless Postgres, through Expo API routes
 
-## Get a fresh project
+The dispatch side is stubbed by design — there is no driver app, so drivers, ETA and tracking are
+simulated against the real route. [project.md](project.md) documents exactly where that boundary
+sits and why.
 
-When you're ready, run:
+## Architecture in one line
+
+Expo Router serves both the app and its backend: screens under `app/(root)`, server routes under
+`app/(api)`, talking to Neon over the serverless HTTP driver and to Razorpay and Google Maps over
+HTTPS. One codebase, one dev server.
+
+## Running it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start     # or: npm run android / npm run ios
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Android needs a development build (`expo-dev-client`) rather than Expo Go, since Razorpay and
+react-native-maps are native modules. Six environment variables are required — they're listed with
+what reads each one in [project.md](project.md#running-locally).
 
-## Learn more
+## Read more
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **[project.md](project.md)** — the engineering write-up: architecture, data model, the payment
+  trust boundary, the design of the tracking simulation, stack rationale, and known gaps
+- **[case-study/veloce-rider-personas.pdf](case-study/veloce-rider-personas.pdf)** — the six rider
+  personas the flow was designed around
